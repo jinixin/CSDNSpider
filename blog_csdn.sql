@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : LA
+ Source Server         : 本地
  Source Server Type    : MySQL
- Source Server Version : 50554
+ Source Server Version : 50717
  Source Host           : localhost
- Source Database       : blog_data
+ Source Database       : blog_csdn
 
  Target Server Type    : MySQL
- Target Server Version : 50554
+ Target Server Version : 50717
  File Encoding         : utf-8
 
- Date: 04/04/2017 23:40:19 PM
+ Date: 04/05/2017 20:26:31 PM
 */
 
 SET NAMES utf8;
@@ -23,7 +23,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `id_title`;
 CREATE TABLE `id_title` (
   `id` int(11) NOT NULL,
-  `title` varchar(35) DEFAULT NULL,
+  `title` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -32,11 +32,10 @@ CREATE TABLE `id_title` (
 -- ----------------------------
 DROP TABLE IF EXISTS `read_number`;
 CREATE TABLE `read_number` (
-  `id` int(11) NOT NULL DEFAULT '0',
-  `read_number` int(11) DEFAULT NULL,
-  `record_time` date NOT NULL DEFAULT '0000-00-00',
-  PRIMARY KEY (`id`,`record_time`),
-  CONSTRAINT `read_number_ibfk_1` FOREIGN KEY (`id`) REFERENCES `id_title` (`id`)
+  `id` int(11) NOT NULL,
+  `number` int(11) NOT NULL DEFAULT '0',
+  `record_time` date NOT NULL,
+  PRIMARY KEY (`id`,`record_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET FOREIGN_KEY_CHECKS = 1;
