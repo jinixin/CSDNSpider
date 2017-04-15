@@ -2,6 +2,7 @@
 # coding=utf-8
 
 from os import environ
+from sys import argv
 from time import localtime, strftime
 from re import compile, findall, S
 from urlparse import urljoin
@@ -88,5 +89,9 @@ class CSDNCrawler(object):
 
 
 if __name__ == '__main__':
-    crawler = CSDNCrawler()
-    crawler.get_next_page(environ.get('CSDN_URL'))  # read blog's url from environment variables
+    try:
+        url = environ.get('CSDN_URL') or argv[1]  # read blog's url from environment variables or command-line arguments
+        crawler = CSDNCrawler()
+        crawler.get_next_page(url)
+    except IndexError:
+        print "You must provide blog's url from environment variables or command-line arguments."

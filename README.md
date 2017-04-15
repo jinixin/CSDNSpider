@@ -13,7 +13,7 @@ Crawling the read number of every blog in CSDN everyday.
 <code>export DB_USER=数据库用户</code>
 <code>export DB_PWD=数据库密码</code>
 用上面三条语句分别将爬取地址，数据库信息写入Linux环境变量
-（你也可以在getBlogCSDN.py中直接替换）
+（你也可以在getBlogCSDN.py中直接替换，或通过命令行参数将博客地址传入）
 
 * 通过<code>crontab -e</code>设置Linux定时任务
 <code>1 0 * * * nohup /root/getBlogCSDN.py > /root/getBlogCSDN.log &</code>
