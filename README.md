@@ -18,3 +18,5 @@ Crawling the read number of every blog in CSDN everyday.
 * 通过<code>crontab -e</code>设置Linux定时任务
 <code>1 0 * * * nohup /root/getBlogCSDN.py > /root/getBlogCSDN.log &</code>
 (这样该脚本会在每天的00:01自动运行，注意修改具体路径)
+### 运行
+* 所在目录，命令行键入“./getBlogCSDN.py”

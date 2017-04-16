@@ -66,14 +66,15 @@ class CSDNCrawler(object):
         id_title = self.regex['id_title'].findall(html)
         with SqlTool(self.db_user, self.db_pwd) as cursor:
             for line in id_title:
-                cursor.execute('select id from id_title where id=%s', (line[0],))
-                if cursor.rowcount == 0:
+                cursor.execute('select title from id_title where id=%s', (line[0],))
+                if cursor.rowcount <= 0:
                     cursor.execute('insert into id_title(id, title) values (%s, %s)', (line[0], line[2].strip()))
+                elif cursor.fetchone()[0] != line[2].strip().decode('utf-8'):  # update title in db where title changed
+                    cursor.execute('update id_title set title=%s where id=%s', (line[2].strip(), line[0]))
 
         id_read = findall(self.regex['id_read'], html)
         with SqlTool(self.db_user, self.db_pwd) as cursor:
             for line in id_read:
-                # print line[0].strip(), line[1].strip()
                 cursor.execute('replace into read_number(id, number, record_time) values (%s, %s, %s)',
                                (line[0].strip(), line[1].strip(), self.date))
         return self.regex['next_page'].search(html)  # search 'next_page'
