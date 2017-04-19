@@ -15,6 +15,8 @@ Crawling the read number of every blog in CSDN everyday.
 用上面三条语句分别将爬取地址，数据库信息写入Linux环境变量
 （你也可以在getBlogCSDN.py中直接替换，或通过命令行参数将博客地址传入）
 
+* 向MySQL导入数据库文件“blog_csdn.sql”
+
 * 通过<code>crontab -e</code>设置Linux定时任务
 <code>1 0 * * * nohup /root/getBlogCSDN.py > /root/getBlogCSDN.log &</code>
 (这样该脚本会在每天的00:01自动运行，注意修改具体路径)
