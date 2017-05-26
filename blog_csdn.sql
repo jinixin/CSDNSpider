@@ -11,7 +11,7 @@
  Target Server Version : 50717
  File Encoding         : utf-8
 
- Date: 04/05/2017 20:26:31 PM
+ Date: 05/27/2017 01:02:07 AM
 */
 
 SET NAMES utf8;
@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS `id_title`;
 CREATE TABLE `id_title` (
   `id` int(11) NOT NULL,
   `title` varchar(128) NOT NULL,
+  `content` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

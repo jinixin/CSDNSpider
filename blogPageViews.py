@@ -4,32 +4,10 @@
 from os import environ
 from sys import argv
 from time import localtime, strftime
-from re import compile, findall, S
+import re
 from urlparse import urljoin
-import MySQLdb
 from requests import get
-
-
-class SqlTool(object):
-    """Tool to deal with SQL"""
-
-    def __init__(self, user, pwd, db='blog_csdn', host='localhost', port=3306):
-        # print host, port, user, pwd, db
-        self.connect = MySQLdb.connect(host=host, port=port, user=user, passwd=pwd, db=db, charset='utf8')
-        self.cursor = self.connect.cursor()
-
-    def __enter__(self):
-        """back to 'with SqlTool()' """
-        return self.cursor
-
-    def __exit__(self, exc_type, exc_instance, traceback):
-        """end and clean the result"""
-        if exc_instance:
-            print exc_instance
-        self.cursor.close()
-        self.connect.commit()
-        self.connect.close()
-        return True
+from .SqlTool import SqlTool
 
 
 class CSDNCrawler(object):
@@ -37,12 +15,12 @@ class CSDNCrawler(object):
 
     def __init__(self):
         self.regex = {
-            'id_title': compile(
+            'id_title': re.compile(
                 '<span\s+class="link_title"><a\s+href="/\w+/article/details/(\d+)">(.*?<font\s+color="red">\[置顶\]</font>)?(.+?)</a></span>',
-                S),
-            'id_read': compile('/(\d+)"\s+title="阅读次数">阅读</a>\((\d+)\)</span>'),
-            'next_page': compile('</a>\s*<a\s+href="([^><]+)">下一页</a>\s*<a'),
-            'check_success': compile('<title>维护-提示页面</title>'),
+                re.S),
+            'id_read': re.compile('/(\d+)"\s+title="阅读次数">阅读</a>\((\d+)\)</span>'),
+            'next_page': re.compile('</a>\s*<a\s+href="([^><]+)">下一页</a>\s*<a'),
+            'check_success': re.compile('<title>维护-提示页面</title>'),
         }
         self.date = strftime('%Y-%m-%d', localtime())
         self.db_user = environ.get('DB_USER')  # read database user from environment variables
@@ -72,7 +50,7 @@ class CSDNCrawler(object):
                 elif cursor.fetchone()[0] != line[2].strip().decode('utf-8'):  # update title in db where title changed
                     cursor.execute('update id_title set title=%s where id=%s', (line[2].strip(), line[0]))
 
-        id_read = findall(self.regex['id_read'], html)
+        id_read = re.findall(self.regex['id_read'], html)
         with SqlTool(self.db_user, self.db_pwd) as cursor:
             for line in id_read:
                 cursor.execute('replace into read_number(id, number, record_time) values (%s, %s, %s)',
