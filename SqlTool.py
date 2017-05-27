@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+from os import environ
 import MySQLdb
 
 
 class SqlTool(object):
     """Tool to deal with SQL"""
 
-    def __init__(self, user, pwd, db='blog_csdn', host='localhost', port=3306):
-        # print host, port, user, pwd, db
+    def __init__(self, db, user=environ.get('DB_USER'), pwd=environ.get('DB_PWD'), host='localhost', port=3306):
+        # read database user, password from environment variables
         self.connect = MySQLdb.connect(host=host, port=port, user=user, passwd=pwd, db=db, charset='utf8')
         self.cursor = self.connect.cursor()
 

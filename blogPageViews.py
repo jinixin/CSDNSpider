@@ -7,7 +7,7 @@ from time import localtime, strftime
 import re
 from urlparse import urljoin
 from requests import get
-from .SqlTool import SqlTool
+from sqltool import SqlTool
 
 
 class CSDNCrawler(object):
@@ -23,8 +23,6 @@ class CSDNCrawler(object):
             'check_success': re.compile('<title>维护-提示页面</title>'),
         }
         self.date = strftime('%Y-%m-%d', localtime())
-        self.db_user = environ.get('DB_USER')  # read database user from environment variables
-        self.db_pwd = environ.get('DB_PWD')  # read database password from environment variables
 
     def download_html(self, url):
         """get page source code"""
@@ -33,7 +31,7 @@ class CSDNCrawler(object):
         }
         while True:
             response = get(url, headers=HEAD)
-            if self.regex['check_success'].search(response.content) is None:
+            if self.regex['check_success'].search(response.content) is None:  # get successfully
                 break
         return response.content
 
@@ -42,7 +40,7 @@ class CSDNCrawler(object):
         html = self.download_html(url)
 
         id_title = self.regex['id_title'].findall(html)
-        with SqlTool(self.db_user, self.db_pwd) as cursor:
+        with SqlTool(db='blog_csdn') as cursor:
             for line in id_title:
                 cursor.execute('select title from id_title where id=%s', (line[0],))
                 if cursor.rowcount <= 0:
@@ -51,7 +49,7 @@ class CSDNCrawler(object):
                     cursor.execute('update id_title set title=%s where id=%s', (line[2].strip(), line[0]))
 
         id_read = re.findall(self.regex['id_read'], html)
-        with SqlTool(self.db_user, self.db_pwd) as cursor:
+        with SqlTool(db='blog_csdn') as cursor:
             for line in id_read:
                 cursor.execute('replace into read_number(id, number, record_time) values (%s, %s, %s)',
                                (line[0].strip(), line[1].strip(), self.date))
