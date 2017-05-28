@@ -9,7 +9,7 @@ Crawling the read number of every blog in CSDN everyday.
 ### 使用
 * 通过<code>pip install -r requirements</code>安装所需包
 
-* <code>export CSDN_URL=某用户CSDN博客地址</code>  
+* <code>export CSDN_URL=某用户CSDN博客地址</code>（如：http://blog.csdn.net/jinixin）  
 <code>export DB_USER=数据库用户</code>  
 <code>export DB_PWD=数据库密码</code>  
 用上面三条语句分别将爬取地址，数据库信息写入Linux环境变量  

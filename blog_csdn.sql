@@ -11,7 +11,7 @@
  Target Server Version : 50717
  File Encoding         : utf-8
 
- Date: 05/27/2017 01:02:07 AM
+ Date: 05/28/2017 16:44:05 PM
 */
 
 SET NAMES utf8;
@@ -23,6 +23,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `id_title`;
 CREATE TABLE `id_title` (
   `id` int(11) NOT NULL,
+  `author` varchar(32) NOT NULL,
   `title` varchar(128) NOT NULL,
   `content` text,
   PRIMARY KEY (`id`)

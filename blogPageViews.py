@@ -24,6 +24,11 @@ class CSDNCrawler(object):
         }
         self.date = strftime('%Y-%m-%d', localtime())
 
+    def get_username(self, url):
+        """get username from url"""
+        result = re.search('blog.csdn.net/([\w_@]+)', url)
+        self.username = result.group(1)
+
     def download_html(self, url):
         """get page source code"""
         HEAD = {
@@ -44,7 +49,8 @@ class CSDNCrawler(object):
             for line in id_title:
                 cursor.execute('select title from id_title where id=%s', (line[0],))
                 if cursor.rowcount <= 0:
-                    cursor.execute('insert into id_title(id, title) values (%s, %s)', (line[0], line[2].strip()))
+                    cursor.execute('insert into id_title(id, author, title) values (%s, %s, %s)',
+                                   (line[0], self.username, line[2].strip()))
                 elif cursor.fetchone()[0] != line[2].strip().decode('utf-8'):  # update title in db where title changed
                     cursor.execute('update id_title set title=%s where id=%s', (line[2].strip(), line[0]))
 
@@ -57,6 +63,7 @@ class CSDNCrawler(object):
 
     def get_next_page(self, url):
         """run 'get_read_number()' and check code whether exists next page"""
+        self.get_username(url)
         while True:
             part_url = self.get_read_number(url)
             if part_url is None:
