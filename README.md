@@ -7,6 +7,8 @@ Crawling the read number of every blog in CSDN everyday.
 
 * 提供博客备份功能，把博客的文字信息备份到数据库
 
+* 博客数据可视化
+
 
 ## 使用
 * 通过<code>pip install -r requirements</code>安装所需包
@@ -31,11 +33,17 @@ Crawling the read number of every blog in CSDN everyday.
 #### 备份博客
 * 这个不需要每天都运行，需要时命令行键入“./blogBackup.py”即可
 
+#### 可视化数据（测试阶段）
+* 需要时命令行键入“./blogImages.py”即可；Mac用户运行时若报错，请参考该[链接](https://stackoverflow.com/questions/21784641/installation-issue-with-matplotlib-python)
+* 效果图  
+
+![最近10天博客访问量](http://i1.piimg.com/1949/85963353d32295cd.png)
+
 ## 未来
 * 博客中的图片没能备份，以后图片也要备份。
 
-* 通过图表的形式将数据表现出来，能看到每天每篇博客的访问增长情况，并做一定的分析。
+* 丰富图表类型；加入服务器，将数据直接显示到对应博客上。
 
-（如有好的点子，可以通过<jinixin@qq.com>告诉我，或者直接加入进来，谢谢）
+#### 如有好点子，可通过<jinixin@qq.com>告诉我，或直接加入该项目，谢谢
 
 
