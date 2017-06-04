@@ -10,49 +10,67 @@ pyplot.rcParams['axes.unicode_minus'] = False
 
 
 class BlogImage(object):
-    def __init__(self):
-        pass
+    today = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))[:11]
+    ten_day_ago = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - 3600 * 24 * 10))[:11]
+
+    @staticmethod
+    def set_info_and_show(pict, title, xlabel, ylabel):
+        pict.title(title)
+        pict.xlabel(xlabel)  # x轴名字
+        pict.ylabel(ylabel)  # y轴名字
+        pict.show()
+
+    @staticmethod
+    def x_axle_num2text(x, y, bottom=None):
+        fig, ax = pyplot.subplots()
+        text_to_x_scale = range(len(x))
+        pyplot.bar(text_to_x_scale, y)  # 设置x轴下标
+        if bottom:
+            pyplot.subplots_adjust(bottom=bottom)  # 调整底部，使文章标题显示完整
+        ax.set_xticks(text_to_x_scale)  # 设置x轴刻度
+        ax.set_xticklabels(x, rotation='vertical')  # 设置x轴刻度文本
 
     @classmethod
     def everyday_view_num(cls):
+        """生成最近十天博客访问总量图"""
         with SqlTool(db='blog_csdn') as cursor:
             cursor.execute('select sum(number), record_time from read_number group by record_time order by record_time desc limit 10')
-            view_num, view_date = zip(*cursor.fetchall())  # get the sum of view and date
-        pyplot.title(u'最近十天博客的日访问量')
-        pyplot.xlabel(u'日期')
-        pyplot.ylabel(u'访问量')
+            view_num, view_date = zip(*cursor.fetchall())  # 获取访问总量列表和对应日期
         pyplot.plot(view_date, view_num)  # x,y
-        pyplot.show()
+        cls.set_info_and_show(pyplot, u'最近十天博客的日访问量', u'日期', u'访问量')
 
     @classmethod
     def ten_day_add_num(cls):
+        """生成博客每篇文章最近十天的访问增量图"""
         with SqlTool(db='blog_csdn') as cursor:
             cursor.execute('select id, title from id_title')
             id_title = dict(cursor.fetchall())  # 产生id到title的哈希映射
-            today = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))[:11]
-            ten_day_ago = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - 3600 * 24 * 10))[:11]
-            cursor.execute('select id, number from read_number where record_time=%s order by id', (today,))
+            cursor.execute('select id, number from read_number where record_time=%s order by id', (cls.today,))
             id_number_after = cursor.fetchall()
-            cursor.execute('select id, number from read_number where record_time=%s order by id', (ten_day_ago,))
+            cursor.execute('select id, number from read_number where record_time=%s order by id', (cls.ten_day_ago,))
             id_number_before = cursor.fetchall()
         view_diff, add_num, title = [], [], []
-        map(lambda x, y: view_diff.append((x[0], x[1] - y[1])), id_number_after, id_number_before)
+        map(lambda x, y: view_diff.append((x[0], x[1] - y[1])), id_number_after, id_number_before)  # 获取增量
         view_diff = dict(view_diff)  # 产生id到增量的哈希映射
         for article_id in view_diff:
             add_num.append(view_diff[article_id])
             title.append(id_title[article_id])
-        fig, ax = pyplot.subplots()
-        title_to_x_scale = range(len(title))
-        pyplot.bar(title_to_x_scale, add_num)  # 设置x轴下标
-        pyplot.subplots_adjust(bottom=0.55)  # 调整底部，使标题显示完整
-        ax.set_xticks(title_to_x_scale)  # 设置x轴刻度
-        ax.set_xticklabels(title, rotation='vertical')  # 设置x轴刻度文本
-        pyplot.title(u'博客每篇文章最近十天的访问增量')
-        pyplot.xlabel(u'文章名')
-        pyplot.ylabel(u'访问增量')
-        pyplot.show()
+        cls.x_axle_num2text(title, add_num, bottom=0.55)
+        cls.set_info_and_show(pyplot, u'博客每篇文章最近十天的访问增量', u'文章名', u'访问增量')
+
+    @classmethod
+    def article_view_num(cls):
+        """生成当前博客每篇文章访问量图"""
+        with SqlTool(db='blog_csdn') as cursor:
+            cursor.execute(
+                'select number, title from read_number inner join id_title on read_number.id=id_title.id where record_time=%s',
+                (cls.today,))
+            view_num, title = zip(*cursor.fetchall())
+        cls.x_axle_num2text(title, view_num, bottom=0.55)
+        cls.set_info_and_show(pyplot, u'当前博客每篇文章访问量', u'文章名', u'访问量')
 
 
 if __name__ == '__main__':
     BlogImage.everyday_view_num()
     BlogImage.ten_day_add_num()
+    BlogImage.article_view_num()
