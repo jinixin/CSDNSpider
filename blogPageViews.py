@@ -16,7 +16,7 @@ class CSDNCrawler(object):
     def __init__(self):
         self.regex = {
             'id_title': re.compile(
-                '<span\s+class="link_title"><a\s+href="/\w+/article/details/(\d+)">(.*?<font\s+color="red">\[置顶\]</font>)?(.+?)</a></span>',
+                '<span\s+class="link_title"><a\s+href="/\w+/article/details/(\d+)">(.*?<font\s+color="red">\[置顶\]</font>)?(.+?)</a>',
                 re.S),
             'id_read': re.compile('/(\d+)"\s+title="阅读次数">阅读</a>\((\d+)\)</span>'),
             'next_page': re.compile('</a>\s*<a\s+href="([^><]+)">下一页</a>\s*<a'),
