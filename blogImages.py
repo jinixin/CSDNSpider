@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import time
+import datetime
 from matplotlib import pyplot
 from sqltool import SqlTool
 
@@ -10,8 +10,8 @@ pyplot.rcParams['axes.unicode_minus'] = False
 
 
 class BlogImage(object):
-    today = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))[:11]
-    ten_day_ago = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - 3600 * 24 * 10))[:11]
+    today = datetime.datetime.today().date()
+    ten_day_ago = (today - datetime.timedelta(days=10)).strftime('%Y-%m-%d')
 
     @staticmethod
     def set_info_and_show(pict, title, xlabel, ylabel):
