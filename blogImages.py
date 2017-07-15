@@ -14,11 +14,12 @@ class BlogImage(object):
     ten_day_ago = (today - datetime.timedelta(days=10)).strftime('%Y-%m-%d')
 
     @staticmethod
-    def set_info_and_show(pict, title, xlabel, ylabel):
+    def set_info_and_show(pict, title, pict_name, xlabel, ylabel):
         pict.title(title)
         pict.xlabel(xlabel)  # x轴名字
         pict.ylabel(ylabel)  # y轴名字
-        pict.show()
+        pyplot.savefig('storage/%s.png' % pict_name)
+        # pict.show()
 
     @staticmethod
     def x_axle_num2text(x, y, bottom=None):
@@ -37,7 +38,7 @@ class BlogImage(object):
             cursor.execute('select sum(number), record_time from read_number group by record_time order by record_time desc limit 10')
             view_num, view_date = zip(*cursor.fetchall())  # 获取访问总量列表和对应日期
         pyplot.plot(view_date, view_num)  # x,y
-        cls.set_info_and_show(pyplot, u'最近十天博客的日访问量', u'日期', u'访问量')
+        cls.set_info_and_show(pyplot, u'最近十天博客的日访问量', 'everyday_view_num' , u'日期', u'访问量')
 
     @classmethod
     def ten_day_add_num(cls):
@@ -56,7 +57,7 @@ class BlogImage(object):
             add_num.append(view_diff[article_id])
             title.append(id_title[article_id])
         cls.x_axle_num2text(title, add_num, bottom=0.55)
-        cls.set_info_and_show(pyplot, u'博客每篇文章最近十天的访问增量', u'文章名', u'访问增量')
+        cls.set_info_and_show(pyplot, u'博客每篇文章最近十天的访问增量', 'ten_day_add_num', u'文章名', u'访问增量')
 
     @classmethod
     def article_view_num(cls):
@@ -67,7 +68,7 @@ class BlogImage(object):
                 (cls.today,))
             view_num, title = zip(*cursor.fetchall())
         cls.x_axle_num2text(title, view_num, bottom=0.55)
-        cls.set_info_and_show(pyplot, u'当前博客每篇文章访问量', u'文章名', u'访问量')
+        cls.set_info_and_show(pyplot, u'当前博客每篇文章访问量', 'article_view_num', u'文章名', u'访问量')
 
 
 if __name__ == '__main__':
