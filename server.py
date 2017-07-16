@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding=utf-8
+
 from flask import Flask, send_file, abort
 
 app = Flask(__name__)
@@ -13,4 +16,4 @@ def show_picture(pict_name):
 
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=False, host='0.0.0.0')

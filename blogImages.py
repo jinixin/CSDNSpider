@@ -15,6 +15,8 @@ class BlogImage(object):
 
     @staticmethod
     def set_info_and_show(pict, title, pict_name, xlabel, ylabel):
+        fig = pyplot.gcf()
+        fig.set_size_inches(10, 8)  # 设置图片大小
         pict.title(title)
         pict.xlabel(xlabel)  # x轴名字
         pict.ylabel(ylabel)  # y轴名字
@@ -38,7 +40,7 @@ class BlogImage(object):
             cursor.execute('select sum(number), record_time from read_number group by record_time order by record_time desc limit 10')
             view_num, view_date = zip(*cursor.fetchall())  # 获取访问总量列表和对应日期
         pyplot.plot(view_date, view_num)  # x,y
-        cls.set_info_and_show(pyplot, u'最近十天博客的日访问量', 'everyday_view_num' , u'日期', u'访问量')
+        cls.set_info_and_show(pyplot, u'最近十天博客的日访问量', 'everyday_view_num', u'日期', u'访问量')
 
     @classmethod
     def ten_day_add_num(cls):
