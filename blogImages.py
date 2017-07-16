@@ -7,9 +7,6 @@ matplotlib.use('Agg')  # 适配Linux
 from matplotlib import pyplot
 from sqltool import SqlTool
 
-pyplot.rcParams['font.sans-serif'] = ['SimHei']
-pyplot.rcParams['axes.unicode_minus'] = False
-
 
 class BlogImage(object):
     today = datetime.datetime.today().date()

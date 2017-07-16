@@ -10,7 +10,7 @@ app = Flask(__name__)
 def show_picture(pict_name):
     pictures = ['article_view_num', 'everyday_view_num', 'ten_day_add_num']
     if pict_name in pictures:
-        return send_file('storage/%s.png' % pict_name, mimetype='image/png', cache_timeout=10)
+        return send_file('storage/%s.png' % pict_name, mimetype='image/png', cache_timeout=60*10)
     else:
         abort(404)
 
