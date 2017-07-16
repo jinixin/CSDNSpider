@@ -2,6 +2,8 @@
 # coding=utf-8
 
 import datetime
+import matplotlib
+matplotlib.use('Agg')  # 适配Linux
 from matplotlib import pyplot
 from sqltool import SqlTool
 
