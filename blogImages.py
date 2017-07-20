@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+import os
+import sys
 import datetime
 import matplotlib
 matplotlib.use('Agg')  # 适配Linux
@@ -19,7 +21,7 @@ class BlogImage(object):
         pict.title(title)
         pict.xlabel(xlabel)  # x轴名字
         pict.ylabel(ylabel)  # y轴名字
-        pyplot.savefig('storage/%s.png' % pict_name)
+        pyplot.savefig(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'storage/%s.png' % pict_name))
         # pict.show()
 
     @staticmethod
