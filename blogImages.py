@@ -22,7 +22,6 @@ class BlogImage(object):
         pict.xlabel(xlabel)  # x轴名字
         pict.ylabel(ylabel)  # y轴名字
         pyplot.savefig(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'storage/%s.png' % pict_name))
-        # pict.show()
 
     @staticmethod
     def x_axle_num2text(x, y, bottom=None):
