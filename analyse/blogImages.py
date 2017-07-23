@@ -49,15 +49,15 @@ class BlogImage(object):
             cursor.execute('select id, title from id_title')
             id_title = dict(cursor.fetchall())  # 产生id到title的哈希映射
             cursor.execute('select id, number from read_number where record_time=%s order by id', (cls.today,))
-            id_number_after = cursor.fetchall()
+            view_after = dict(cursor.fetchall())
+            view_before = {}.fromkeys(view_after.keys(), 0)
             cursor.execute('select id, number from read_number where record_time=%s order by id', (cls.ten_day_ago,))
-            id_number_before = cursor.fetchall()
-        view_diff, add_num, title = [], [], []
-        map(lambda x, y: view_diff.append((x[0], x[1] - y[1])), id_number_after, id_number_before)  # 获取增量
-        view_diff = dict(view_diff)  # 产生id到增量的哈希映射
-        for article_id in view_diff:
-            add_num.append(view_diff[article_id])
-            title.append(id_title[article_id])
+            view_before.update(dict(cursor.fetchall()))  # 防止新增文章十天前无记录
+        view_diff = dict([(index, view_after[index] - view_before[index]) for index in view_after])  # 计算增量
+        add_num, title = [], []
+        for index in sorted(view_diff):
+            add_num.append(view_diff[index])
+            title.append(id_title[index])
         cls.x_axle_num2text(title, add_num, bottom=0.55)
         cls.set_info_and_show(pyplot, u'博客每篇文章最近十天的访问增量', 'ten_day_add_num', u'文章名', u'访问增量')
 
@@ -66,7 +66,7 @@ class BlogImage(object):
         """生成当前博客每篇文章访问量图"""
         with SqlTool(db='blog_csdn') as cursor:
             cursor.execute(
-                'select number, title from read_number inner join id_title on read_number.id=id_title.id where record_time=%s',
+                'select number, title from read_number inner join id_title on read_number.id=id_title.id where record_time=%s order by id_title.id',
                 (cls.today,))
             view_num, title = zip(*cursor.fetchall())
         cls.x_axle_num2text(title, view_num, bottom=0.55)
