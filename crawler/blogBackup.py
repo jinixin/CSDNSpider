@@ -2,6 +2,7 @@
 # coding=utf-8
 
 from bs4 import BeautifulSoup
+
 from blogPageViews import CSDNCrawler
 from sqltool import SqlTool
 
