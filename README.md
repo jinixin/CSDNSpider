@@ -52,7 +52,7 @@ Crawling the read number of every blog in CSDN everyday.
 ![博客每篇文章最近十天的访问增量 ](http://i4.buimg.com/596409/f5c8fc3682dba249.png)
 
 #### 运行服务器
-* 命令行键入“./server.py”即可，默认端口是5000  
+* 命令行键入“./server.py runserver”即可，默认端口是5000  
 
 * 随时随地通过网络访问”http://服务器IP地址:端口/picture/图片名”  获取图片；三张图片名称分别为：article_view_num，everyday_view_num，ten_day_add_num
 
