@@ -48,8 +48,10 @@ Crawling the read number of every blog in CSDN everyday.
 
 * 效果图  
 
-![最近十天博客的日访问量](http://i4.buimg.com/596409/a3b23dcec3ecb4e9.png)
-![博客每篇文章最近十天的访问增量 ](http://i4.buimg.com/596409/f5c8fc3682dba249.png)
+![最近十天博客的日访问量](http://45.76.170.165:7003/picture/everyday_view_num)  
+
+![博客每篇文章的访问量 ](http://45.76.170.165:7003/picture/article_view_num)  
+
 
 #### 运行服务器
 * 命令行键入“./server.py runserver”即可，默认端口是5000  
