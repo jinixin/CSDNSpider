@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/picture/<pict_name>')
 def show_picture(pict_name):
-    pictures = ['article_view_num', 'everyday_view_num', 'ten_day_add_num']
+    pictures = ['article_view_num', 'everyday_view_num', 'ten_day_add_num', 'everyday_add_view']
     if pict_name in pictures:
         return send_file('../storage/%s.png' % pict_name, mimetype='image/png', cache_timeout=60 * 30)
     else:

@@ -72,8 +72,23 @@ class BlogImage(object):
         cls.x_axle_num2text(title, view_num, bottom=0.55)
         cls.set_info_and_show(pyplot, u'当前博客每篇文章访问量', 'article_view_num', u'文章名', u'访问量')
 
+    @classmethod
+    def everyday_add_view(cls):
+        """生成博客每天访问增量图"""
+        with SqlTool(db='blog_csdn') as cursor:
+            cursor.execute('select sum(number), record_time from read_number group by record_time order by record_time desc limit 51')
+            ret = reversed(cursor.fetchall())
+        date_list, add_list, yesterday_num = [], [], 0
+        for i, (num, view_date) in enumerate(ret):
+            date_list.append(view_date)
+            add_list.append(num - yesterday_num)
+            yesterday_num = num
+        cls.x_axle_num2text(date_list[1:], add_list[1:], bottom=0.2)
+        cls.set_info_and_show(pyplot, u'博客每天访问增量', 'everyday_add_view', u'日期', u'访问增量')
+
 
 if __name__ == '__main__':
     BlogImage.everyday_view_num()
     BlogImage.ten_day_add_num()
     BlogImage.article_view_num()
+    BlogImage.everyday_add_view()
