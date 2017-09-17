@@ -12,7 +12,7 @@ class CSDNBackup(CSDNCrawler):
         super(CSDNBackup, self).__init__()
 
     def backup(self):
-        with SqlTool(db='blog_csdn') as cursor:
+        with SqlTool() as cursor:
             cursor.execute('select id, author from id_title')
             id_list = cursor.fetchall()
         article_hash = {}
@@ -25,7 +25,7 @@ class CSDNBackup(CSDNCrawler):
             else:
                 print "%s - %s can't backup!" % (line[1], line[0])
 
-        with SqlTool(db='blog_csdn') as cursor:
+        with SqlTool() as cursor:
             for id in article_hash:
                 cursor.execute("""update id_title set content=%s where id=%s""", (article_hash[id], id))
 

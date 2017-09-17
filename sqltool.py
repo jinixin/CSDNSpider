@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from os import environ
 import MySQLdb
+
+from server import cfg
 
 
 class SqlTool(object):
     """Tool to deal with SQL"""
 
-    def __init__(self, db, user=environ.get('DB_USER'), pwd=environ.get('DB_PWD'), host='localhost', port=3306):
-        # read database user, password from environment variables
-        self.connect = MySQLdb.connect(host=host, port=port, user=user, passwd=pwd, db=db, charset='utf8')
+    def __init__(self):
+        self.connect = MySQLdb.connect(
+            host=cfg.get('mysql', 'host'),
+            port=cfg.getint('mysql', 'port'),
+            user=cfg.get('mysql', 'user'),
+            passwd=cfg.get('mysql', 'pwd'),
+            db=cfg.get('mysql', 'db'),
+            charset='utf8',
+        )
         self.cursor = self.connect.cursor()
 
     def __enter__(self):

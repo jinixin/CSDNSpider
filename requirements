@@ -1,6 +1,7 @@
 appdirs==1.4.3
 beautifulsoup4==4.6.0
 click==6.7
+configparser==3.5.0
 cycler==0.10.0
 Flask==0.12.2
 functools32==3.2.3.post2

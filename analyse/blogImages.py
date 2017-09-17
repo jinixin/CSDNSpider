@@ -4,9 +4,11 @@
 import os
 import sys
 import datetime
+
 import matplotlib
 matplotlib.use('Agg')  # 适配Linux
 from matplotlib import pyplot
+
 from sqltool import SqlTool
 
 
@@ -36,7 +38,7 @@ class BlogImage(object):
     @classmethod
     def everyday_view_num(cls):
         """生成最近十天博客访问总量图"""
-        with SqlTool(db='blog_csdn') as cursor:
+        with SqlTool() as cursor:
             cursor.execute('select sum(number), record_time from read_number group by record_time order by record_time desc limit 10')
             view_num, view_date = zip(*cursor.fetchall())  # 获取访问总量列表和对应日期
         pyplot.plot(view_date, view_num)  # x,y
@@ -45,7 +47,7 @@ class BlogImage(object):
     @classmethod
     def ten_day_add_num(cls):
         """生成博客每篇文章最近十天的访问增量图"""
-        with SqlTool(db='blog_csdn') as cursor:
+        with SqlTool() as cursor:
             cursor.execute('select id, title from id_title')
             id_title = dict(cursor.fetchall())  # 产生id到title的哈希映射
             cursor.execute('select id, number from read_number where record_time=%s order by id', (cls.today,))
@@ -64,7 +66,7 @@ class BlogImage(object):
     @classmethod
     def article_view_num(cls):
         """生成当前博客每篇文章访问量图"""
-        with SqlTool(db='blog_csdn') as cursor:
+        with SqlTool() as cursor:
             cursor.execute(
                 'select number, title from read_number inner join id_title on read_number.id=id_title.id where record_time=%s order by id_title.id',
                 (cls.today,))
@@ -75,7 +77,7 @@ class BlogImage(object):
     @classmethod
     def everyday_add_view(cls):
         """生成博客每天访问增量图"""
-        with SqlTool(db='blog_csdn') as cursor:
+        with SqlTool() as cursor:
             cursor.execute('select sum(number), record_time from read_number group by record_time order by record_time desc limit 51')
             ret = reversed(cursor.fetchall())
         date_list, add_list, yesterday_num = [], [], 0

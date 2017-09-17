@@ -2,8 +2,11 @@
 # coding=utf-8
 
 from flask import Flask, send_file, abort
+from configparser import ConfigParser
 
 app = Flask(__name__)
+cfg = ConfigParser()
+cfg.read('config')
 
 
 @app.route('/picture/<pict_name>')
@@ -16,4 +19,8 @@ def show_picture(pict_name):
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0')
+    app.run(
+        host=cfg.get('server', 'host'),
+        port=cfg.getint('server', 'port'),
+        debug=cfg.getboolean('server', 'debug'),
+    )

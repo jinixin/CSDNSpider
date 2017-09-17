@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from os import environ
-from sys import argv
-from time import localtime, strftime
 import re
+import sys
+from time import localtime, strftime
 from urlparse import urljoin
-from requests import get
+
+import requests
+
 from sqltool import SqlTool
+from server import cfg
 
 
 class CSDNCrawler(object):
@@ -35,7 +37,7 @@ class CSDNCrawler(object):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55 Safari/537.36'
         }
         while True:
-            response = get(url, headers=HEAD)
+            response = requests.get(url, headers=HEAD)
             if self.regex['check_success'].search(response.content) is None:  # get successfully
                 break
         return response.content
@@ -45,7 +47,7 @@ class CSDNCrawler(object):
         html = self.download_html(url)
 
         id_title = self.regex['id_title'].findall(html)
-        with SqlTool(db='blog_csdn') as cursor:
+        with SqlTool() as cursor:
             for line in id_title:
                 cursor.execute('select title from id_title where id=%s', (line[0],))
                 if cursor.rowcount <= 0:
@@ -55,7 +57,7 @@ class CSDNCrawler(object):
                     cursor.execute('update id_title set title=%s where id=%s', (line[2].strip(), line[0]))
 
         id_read = re.findall(self.regex['id_read'], html)
-        with SqlTool(db='blog_csdn') as cursor:
+        with SqlTool() as cursor:
             for line in id_read:
                 cursor.execute('replace into read_number(id, number, record_time) values (%s, %s, %s)',
                                (line[0].strip(), line[1].strip(), self.date))
@@ -74,8 +76,8 @@ class CSDNCrawler(object):
 
 if __name__ == '__main__':
     try:
-        url = environ.get('CSDN_URL') or argv[1]  # read blog's url from environment variables or command-line arguments
+        url = cfg.get('csdn', 'target') or sys.argv[1]
         crawler = CSDNCrawler()
         crawler.get_next_page(url)
     except IndexError:
-        print "You must provide blog's url from environment variables or command-line arguments."
+        print '请在config文件或是命令行参数中配置待爬取的CSDN博客地址'
