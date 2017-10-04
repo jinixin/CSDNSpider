@@ -17,9 +17,7 @@ class CSDNCrawler(object):
 
     def __init__(self):
         self.regex = {
-            'id_title': re.compile(
-                '<span\s+class="link_title"><a\s+href="/\w+/article/details/(\d+)">(.*?<font\s+color="red">\[置顶\]</font>)?(.+?)</a>',
-                re.S),
+            'id_title': re.compile('<span\s+class="link_title"><a\s+href="/\w+/article/details/(\d+)">(.+?)</a>', re.S),
             'id_read': re.compile('/(\d+)"\s+title="阅读次数">阅读</a>\((\d+)\)</span>'),
             'next_page': re.compile('</a>\s*<a\s+href="([^><]+)">下一页</a>\s*<a'),
             'check_success': re.compile('<title>维护-提示页面</title>'),
@@ -46,21 +44,26 @@ class CSDNCrawler(object):
         """use regex to get every blog read number"""
         html = self.download_html(url)
 
-        id_title = self.regex['id_title'].findall(html)
+        id2title, id_title = {}, self.regex['id_title'].findall(html)
+        for line in id_title:
+            id2title[int(line[0].strip())] = line[1].replace('<font color="red">[置顶]</font>', '').strip()
+
         with SqlTool() as cursor:
-            for line in id_title:
-                cursor.execute('select title from id_title where id=%s', (line[0],))
+            for pid, title in id2title.iteritems():
+                cursor.execute('select title from id_title where id=%s', (pid,))
+
                 if cursor.rowcount <= 0:
-                    cursor.execute('insert into id_title(id, author, title) values (%s, %s, %s)',
-                                   (line[0], self.username, line[2].strip()))
-                elif cursor.fetchone()[0] != line[2].strip().decode('utf-8'):  # update title in db where title changed
-                    cursor.execute('update id_title set title=%s where id=%s', (line[2].strip(), line[0]))
+                    cursor.execute('insert into id_title(id, author, title) values (%s, %s, %s)', (
+                        pid, self.username, title))
+                elif cursor.fetchone()[0] != title.decode('utf-8'):  # update title in db where title changed
+                    cursor.execute('update id_title set title=%s where id=%s', (title, pid))
 
         id_read = re.findall(self.regex['id_read'], html)
         with SqlTool() as cursor:
             for line in id_read:
                 cursor.execute('replace into read_number(id, number, record_time) values (%s, %s, %s)',
                                (line[0].strip(), line[1].strip(), self.date))
+
         return self.regex['next_page'].search(html)  # search 'next_page'
 
     def get_next_page(self, url):
