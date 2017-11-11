@@ -4,9 +4,9 @@
 import re
 import sys
 from time import localtime, strftime
-from urlparse import urljoin
 
 import requests
+from bs4 import BeautifulSoup
 
 from sqltool import SqlTool
 from server import cfg
@@ -17,9 +17,7 @@ class CSDNCrawler(object):
 
     def __init__(self):
         self.regex = {
-            'id_title': re.compile('<span\s+class="link_title"><a\s+href="/\w+/article/details/(\d+)">(.+?)</a>', re.S),
-            'id_read': re.compile('/(\d+)"\s+title="阅读次数">阅读</a>\((\d+)\)</span>'),
-            'next_page': re.compile('</a>\s*<a\s+href="([^><]+)">下一页</a>\s*<a'),
+            'get_id': re.compile('article/details/(\d+)', re.S),
             'check_success': re.compile('<title>维护-提示页面</title>'),
         }
         self.date = strftime('%Y-%m-%d', localtime())
@@ -43,38 +41,48 @@ class CSDNCrawler(object):
     def get_read_number(self, url):
         """use regex to get every blog read number"""
         html = self.download_html(url)
+        soup = BeautifulSoup(html, 'lxml')
+        data = soup.find_all('li', class_='blog-unit')
 
-        id2title, id_title = {}, self.regex['id_title'].findall(html)
-        for line in id_title:
-            id2title[int(line[0].strip())] = line[1].replace('<font color="red">[置顶]</font>', '').strip()
+        id2title, id2num = {}, {}
+        for item in data:
+            pid = self.regex['get_id'].search(item.a['href']).group(1)
+            title = item.a.find(class_='blog-title').get_text().replace(u'置顶', '')
+            read_num = item.a.find(class_='icon-read').parent.get_text()
+            if not all([pid, title, read_num]):
+                continue
+            id2title[pid] = title.strip()
+            id2num[pid] = read_num.strip()
+            # print pid, title.strip(), read_num.strip()
 
         with SqlTool() as cursor:
-            for pid, title in id2title.iteritems():
+            for pid, title in id2title.items():
                 cursor.execute('select title from id_title where id=%s', (pid,))
 
                 if cursor.rowcount <= 0:
-                    cursor.execute('insert into id_title(id, author, title) values (%s, %s, %s)', (
-                        pid, self.username, title))
-                elif cursor.fetchone()[0] != title.decode('utf-8'):  # update title in db where title changed
+                    cursor.execute(
+                        'insert into id_title(id, author, title) values (%s, %s, %s)',
+                        (pid, self.username, title)
+                    )
+                elif cursor.fetchone()[0] != title:  # update title in db where title changed
                     cursor.execute('update id_title set title=%s where id=%s', (title, pid))
 
-        id_read = re.findall(self.regex['id_read'], html)
-        with SqlTool() as cursor:
-            for line in id_read:
-                cursor.execute('replace into read_number(id, number, record_time) values (%s, %s, %s)',
-                               (line[0].strip(), line[1].strip(), self.date))
+            for pid, num in id2num.items():
+                cursor.execute(
+                    'replace into read_number(id, number, record_time) values (%s, %s, %s)',
+                    (pid, num, self.date)
+                )
 
-        return self.regex['next_page'].search(html)  # search 'next_page'
+        next_page = soup.find('a', rel='next')
+        return next_page['href'] if next_page else None
 
     def get_next_page(self, url):
         """run 'get_read_number()' and check code whether exists next page"""
         self.get_username(url)
         while True:
-            part_url = self.get_read_number(url)
-            if part_url is None:
+            url = self.get_read_number(url)
+            if url is None:
                 break
-            else:
-                url = urljoin(url, part_url.group(1))
 
 
 if __name__ == '__main__':
