@@ -12,3 +12,9 @@ db = blog_csdn
 
 [csdn]
 target = http://blog.csdn.net/jinixin
+
+[mail]
+host = smtp.qq.com
+port = 587
+account = 邮箱账户
+password = 邮箱授权码
