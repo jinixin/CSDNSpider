@@ -75,6 +75,5 @@ Crawling the read number of every blog in CSDN everyday.
 
 * 提供部署脚本，实现快速部署
 
-#### 如有好点子，可通过jinixin#qq.com告诉我，或直接加入该项目，谢谢 ：）
 
 

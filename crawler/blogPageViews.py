@@ -7,13 +7,14 @@ from time import localtime, strftime
 
 import requests
 from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 
 from sqltool import SqlTool
 from server import cfg
 
 
 class CSDNCrawler(object):
-    """Crawler to get every blog's read number"""
+    """ 爬取每篇文章的访问情况 """
 
     def __init__(self):
         self.regex = {
@@ -23,36 +24,36 @@ class CSDNCrawler(object):
         self.date = strftime('%Y-%m-%d', localtime())
 
     def get_username(self, url):
-        """get username from url"""
+        """ 获取博主昵称 """
         result = re.search('blog.csdn.net/([\w_@]+)', url)
         self.username = result.group(1)
 
     def download_html(self, url):
-        """get page source code"""
-        HEAD = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55 Safari/537.36'
-        }
+        """ 获取网页源代码 """
         while True:
-            response = requests.get(url, headers=HEAD)
-            if self.regex['check_success'].search(response.content) is None:  # get successfully
+            response = requests.get(url, headers={'User-Agent': UserAgent().random})  # 随机产生User-Agent
+            if self.regex['check_success'].search(response.content) is None:
                 break
         return response.content
 
     def get_read_number(self, url):
-        """use regex to get every blog read number"""
+        """ 获取每篇文章标题与访问量 """
         html = self.download_html(url)
         soup = BeautifulSoup(html, 'lxml')
-        data = soup.find_all('li', class_='blog-unit')
+        data = soup.find_all('div', class_='article-item-box')
+        if not data:
+            return False
 
         id2title, id2num = {}, {}
         for item in data:
             pid = self.regex['get_id'].search(item.a['href']).group(1)
-            title = item.a.find(class_='blog-title').get_text().replace(u'置顶', '')
-            read_num = item.a.find(class_='icon-read').parent.get_text()
+            title = item.a.get_text().lstrip().lstrip(u'原').strip()
+            read_num = item.find(text=re.compile(u'阅读数：\d+')).lstrip(u'阅读数：')
+
             if not all([pid, title, read_num]):
                 continue
-            id2title[pid] = title.strip()
-            id2num[pid] = read_num.strip()
+            id2title[pid] = title
+            id2num[pid] = read_num
             # print pid, title.strip(), read_num.strip()
 
         with SqlTool() as cursor:
@@ -73,16 +74,18 @@ class CSDNCrawler(object):
                     (pid, num, self.date)
                 )
 
-        next_page = soup.find('a', rel='next')
-        return next_page['href'] if next_page else None
+        return True
 
-    def get_next_page(self, url):
-        """run 'get_read_number()' and check code whether exists next page"""
-        self.get_username(url)
+    def get_next_page(self, article_list_url):
+        """ 获取博客的所有文章链接 """
+        self.get_username(article_list_url)
+        page = 1
         while True:
-            url = self.get_read_number(url)
-            if url is None:
-                break
+            page_url = '%s%d' % (article_list_url, page)
+            has_next = self.get_read_number(page_url)
+            if not has_next:
+                return
+            page += 1
 
 
 if __name__ == '__main__':

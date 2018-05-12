@@ -11,10 +11,10 @@ pwd = 1234
 db = blog_csdn
 
 [csdn]
-target = http://blog.csdn.net/jinixin
+target = https://blog.csdn.net/jinixin/article/list/
 
 [mail]
 host = smtp.qq.com
 port = 587
 account = 邮箱账户
-password = 邮箱授权码
+password = 邮箱密码
